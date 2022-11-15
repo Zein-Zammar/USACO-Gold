@@ -1,0 +1,48 @@
+#include <bits/stdc++.h>
+#define int long long
+
+using namespace std;
+
+void setIO(string s) {
+	if (!s.empty()){
+		freopen((s + ".in").c_str(), "r", stdin);
+		freopen((s + ".out").c_str(), "w", stdout);
+	}
+}
+
+const int N = 1e5;
+int n,k;
+int a[N],dp[N][21][3];
+
+signed main(){
+
+	setIO("hps");
+	
+	ios::sync_with_stdio(false);
+	cin.tie(nullptr);
+
+	cin>>n>>k;
+	for(int i=0;i<n;++i){
+		char c;cin>>c;
+		a[i] = (c == 'H' ? 0 : (c == 'P' ? 1 : 2));
+	}
+	dp[0][0][0] = (a[0] == 0);
+	dp[0][0][1] = (a[0] == 1);
+	dp[0][0][2] = (a[0] == 2);
+	for(int i=1;i<n;++i){
+		for(int j=0;j<=k;++j){
+			for(int nc=0;nc<3;++nc){
+				for(int la=0;la<3;++la){
+					if (la != nc){
+						if (!j)continue;
+						dp[i][j][nc] = max(dp[i][j][nc],dp[i-1][j-1][la]+(nc == a[i])); 
+					}
+					else{
+						dp[i][j][nc] = max(dp[i][j][nc],dp[i-1][j][la]+(nc == a[i]));
+					}
+				}
+			}
+		}
+	}
+	cout<<max({dp[n-1][k][0],dp[n-1][k][1],dp[n-1][k][2]});
+}/// Check Long Long before sumbmtting ///
