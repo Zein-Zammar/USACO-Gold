@@ -1,0 +1,57 @@
+#include <bits/stdc++.h>
+
+using namespace std;
+
+void setIO(string s) {
+	 if (!s.empty()){
+			freopen((s + ".in").c_str(), "r", stdin);
+			freopen((s + ".out").c_str(), "w", stdout);
+	 }
+}
+
+signed main(){
+
+	setIO("cownomics");
+	
+	ios::sync_with_stdio(false);
+	cin.tie(nullptr);
+ 
+	int n,m;cin>>n>>m;
+	vector<string>s(n),t(n);
+	for(int i = 0;i < n;++i){
+		cin>>s[i];
+	}
+	for(int i = 0;i < n;++i){
+		cin>>t[i];
+	}
+	vector<unsigned long long>po(m),ha(n),ha2(n);
+	for(int i=0;i<m;++i){
+		po[i] = rand()%1000000000;
+	}
+	int l = 0, r = 0, ans = m;
+	bool la = 1; 
+	while(r < m){
+		if (!la)ans = min(ans, r-l);
+		if (la){
+			la = 0; 
+			set<unsigned long long>se;
+			for(int i=0;i<n;++i)
+				se.insert(ha[i] += po[r]*s[i][r]);
+			for(int i=0;i<n;++i)
+				if (se.count(ha2[i] += po[r]*t[i][r]))
+					la = 1;
+			++r;
+		}
+		else{
+			set<unsigned long long>se;
+			for(int i=0;i<n;++i)
+				se.insert(ha[i] -= po[l]*s[i][l]);
+			for(int i = 0;i < n;++i)
+				if (se.count(ha2[i] -= po[l]*t[i][l]))
+					la = 1; 
+			++l;
+		}
+	}
+	cout<<ans; 
+
+}
