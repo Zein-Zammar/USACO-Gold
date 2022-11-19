@@ -1,0 +1,58 @@
+#include <bits/stdc++.h>
+
+using namespace std;
+
+void setIO(string s) {
+	 if (!s.empty()){
+			freopen((s + ".in").c_str(), "r", stdin);
+			freopen((s + ".out").c_str(), "w", stdout);
+	 }
+}
+
+const int N = 100005;
+int n,k;
+vector<int>g[N];
+int dis[N],dp[N];
+
+void dfs(int nd,int p){
+	if (g[nd].size() == 1)
+		dp[nd] = 0; 
+	for(auto&it:g[nd]){
+		if (it == p)
+			continue;
+		dis[it] = dis[nd] + 1;
+		dfs(it,nd);
+		dp[nd] = min(dp[nd],dp[it]+1); 
+	}
+}
+
+int df2(int nd,int p){
+	if (dp[nd] <= dis[nd])
+		return 1; 
+	int ret = 0; 
+	for(auto&it:g[nd]){
+		 if (it == p)
+			continue;
+		ret += df2(it,nd);
+	}
+	return ret; 
+}
+
+signed main(){
+
+	setIO("atlarge");
+
+	ios::sync_with_stdio(false);
+	cin.tie(nullptr);
+
+	cin>>n>>k;
+	for(int i = 1 ;i < n;++i){
+		 int x,y;cin>>x>>y;
+		 g[x].push_back(y);
+		 g[y].push_back(x);
+	}
+	for(int i=1;i<=n;++i)
+		dp[i] = n+1; 
+	dfs(k,k); 
+	cout<<df2(k,k);
+}/// Check Long Long before sumbmtting ///
