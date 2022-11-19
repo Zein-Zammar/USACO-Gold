@@ -1,0 +1,70 @@
+#include <bits/stdc++.h>
+#define int long long
+
+using namespace std;
+
+void setIO(string s) {
+	 if (!s.empty()){
+			freopen((s + ".in").c_str(), "r", stdin);
+			freopen((s + ".out").c_str(), "w", stdout);
+	 }
+}
+
+const int N = 2e5+5;
+int n, m, k, q;
+
+class dsu {
+	 public:
+	 int n, nCC;
+	 vector<int> p;
+	 
+	 dsu(int n_) : n(n_), nCC(n_), p(n_, -1) {}
+ 
+	 inline int get(int x) {
+			return (p[x] < 0 ? x : (p[x] = get(p[x])));
+	 }
+	 
+	 inline bool unite(int x, int y) {
+			if ((x = get(x)) == (y = get(y))) {
+				 return false;
+			}
+			--nCC;
+			if (p[x] < p[y]) {
+				 swap(x, y);
+			}
+			p[y] += p[x];
+			p[x] = y;
+			return true;
+	 }
+};
+
+signed main(){
+
+	setIO("mootube");
+
+	ios::sync_with_stdio(false);
+	cin.tie(nullptr);
+
+	cin>>n>>q;
+	dsu D(n);
+	vector<pair<int,pair<int,int>>>e(n-1);
+	for(auto&it:e){
+		 cin>>it.second.first>>it.second.second>>it.first;
+	}
+	sort(e.rbegin(),e.rend());
+	vector<pair<pair<int,int>,int>>qry(q);
+	for(int i=0;i<q;++i){
+		cin>>qry[i].first.first>>qry[i].first.second;
+		qry[i].second = i; 
+	}
+	sort(qry.rbegin(),qry.rend());
+	int p = 0; 
+	vector<int>ans(q);
+	for(int i=0;i<q;++i){
+		while(p<(int)e.size() && e[p].first >= qry[i].first.first)
+			D.unite(e[p].second.first,e[p].second.second),++p;
+		ans[qry[i].second] = -D.p[D.get(qry[i].first.second)]-1;
+	}
+	for(int i=0;i<q;++i)
+		cout<<ans[i]<<'\n';
+}/// Check Long Long before sumbmtting ///
