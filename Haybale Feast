@@ -1,0 +1,40 @@
+#include <bits/stdc++.h>
+#define int long long
+
+using namespace std;
+
+void setIO(string s) {
+	 if (!s.empty()){
+			freopen((s + ".in").c_str(), "r", stdin);
+			freopen((s + ".out").c_str(), "w", stdout);
+	 }
+}
+
+signed main(){
+
+	setIO("hayfeast");
+
+	ios::sync_with_stdio(false);
+	cin.tie(nullptr);
+
+	int n,m;cin>>n>>m;
+	vector<int>a(n),s(n);
+	for(int i=0;i<n;++i)
+		cin>>a[i]>>s[i];
+	int l = 0, r = 0, cur = 0;
+	multiset<int>se;  
+	int ans = 1e9; 
+	while (l < n){
+		while (cur < m && r + 1 <= n){
+			cur += a[r];
+			se.insert(s[r]);
+			++r; 
+		}
+		if (cur >= m)
+			ans = min(ans,*se.rbegin());
+		cur -= a[l];
+		se.erase(se.find(s[l]));
+		++l;
+	}
+	cout<<ans; 
+}/// Check Long Long before sumbmtting ///
