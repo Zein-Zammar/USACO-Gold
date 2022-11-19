@@ -1,0 +1,45 @@
+#include <bits/stdc++.h>
+#define int long long
+
+using namespace std;
+
+void setIO(string s) {
+	 if (!s.empty()){
+			freopen((s + ".in").c_str(), "r", stdin);
+			freopen((s + ".out").c_str(), "w", stdout);
+	 }
+}
+
+int n;
+int a[101],dp[101][101][101];
+
+int bt(int id,int rem,int la){
+	if (rem < 0)return 1e9; 
+	if (id == n)
+		return (rem == 0 ? 0 : 1e9);
+	int&ret = dp[id][rem][la];
+	if (~ret)return ret; 
+	if (!id)
+		ret = bt(id+1,rem-1,0)+(a[0] != 0);
+	else
+		ret = min(bt(id+1,rem-1,0)+(a[id] != 0),bt(id+1,rem,la+1)+(a[id]!=la+1));
+	return ret; 
+}
+
+signed main(){
+
+	setIO("taming");
+
+	ios::sync_with_stdio(false);
+	cin.tie(nullptr);
+
+	memset(dp,-1,sizeof dp);
+	cin>>n;
+	for (int i = 0; i < n; i++){
+		cin>>a[i];
+	}
+	for(int i=1;i<=n;++i){
+		cout<<bt(0,i,-1)<<'\n';
+	}
+
+}/// Check Long Long before sumbmtting ///
