@@ -1,0 +1,50 @@
+#include <bits/stdc++.h>
+
+using namespace std;
+
+void setIO(string s) {
+	 if (!s.empty()){
+			freopen((s + ".in").c_str(), "r", stdin);
+			freopen((s + ".out").c_str(), "w", stdout);
+	 }
+}
+
+signed main(){
+
+	setIO("snowboots");
+
+	ios::sync_with_stdio(false);
+	cin.tie(nullptr);
+
+	int n,b;cin>>n>>b;
+	vector<pair<int,int>>dep(n);
+	for(int i=0;i<n;++i){
+		cin>>dep[i].first;
+		dep[i].second = i; 
+	}
+	sort(dep.begin(),dep.end());
+	vector<int>sp(b);
+	vector<pair<int,int>>bear(b);
+	for(int i=0;i<b;++i){
+		cin>>bear[i].first>>sp[i];
+		bear[i].second = i;
+	}
+	sort(bear.rbegin(),bear.rend());
+	vector<int>pre(n),nxt(n);
+	for(int i=0;i<n;++i){
+		pre[i] = i-1;
+		nxt[i] = i+1;
+	}
+	vector<int>ans(b);
+	int cur = n-1, mx = 1; 
+	for(int i=0;i<b;++i){
+		while(cur >= 0 && bear[i].first < dep[cur].first){
+			nxt[pre[dep[cur].second]] = nxt[dep[cur].second];
+			pre[nxt[dep[cur].second]] = pre[dep[cur].second];
+			mx = max(mx,nxt[dep[cur].second]-pre[dep[cur].second]);
+			--cur; 
+		}
+		ans[bear[i].second] = (sp[bear[i].second] >= mx);
+	}
+	for(int i=0;i<b;++i)cout<<ans[i]<<'\n';
+}
