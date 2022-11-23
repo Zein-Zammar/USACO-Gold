@@ -1,0 +1,38 @@
+#include <bits/stdc++.h>
+
+using namespace std;
+
+void setIO(string s) {
+	 if (!s.empty()){
+			freopen((s + ".in").c_str(), "r", stdin);
+			freopen((s + ".out").c_str(), "w", stdout);
+	 }
+}
+
+signed main(){
+
+	setIO("feast");
+
+	ios::sync_with_stdio(false);
+	cin.tie(nullptr);
+
+	int n,a,b;
+	cin>>n>>a>>b;
+	vector<vector<int>>dp(n+1,vector<int>(2));
+	dp[0][0] = 1; 
+	for(int i=1;i<=n;++i){
+		if (i >= a)dp[i][0] |= dp[i-a][0];
+		if (i >= b)dp[i][0] |= dp[i-b][0];
+	}
+	for(int i=1;i<=n;++i){
+		if (i >= a)dp[i][1] |= dp[i-a][1];
+		if (i >= b)dp[i][1] |= dp[i-b][1];
+		if (i*2 <= n)dp[i][1] |= dp[i*2][0];
+		if (i*2 < n)dp[i][1] |= dp[i*2+1][0];
+	}
+	int ans = 0; 
+	for(int i=1;i<=n;++i)
+		if (dp[i][0] || dp[i][1])
+			ans = i;
+	cout<<ans; 
+}
