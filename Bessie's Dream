@@ -1,0 +1,83 @@
+#include <bits/stdc++.h>
+
+using namespace std;
+
+void setIO(string s) {
+	 if (!s.empty()){
+			freopen((s + ".in").c_str(), "r", stdin);
+			freopen((s + ".out").c_str(), "w", stdout);
+	 }
+}
+
+const int N = 1001;
+int n, m;
+int a[N][N],cost[N][N][2][5];
+int dr[] = {0,0,0,1,-1};
+int dc[] = {0,1,-1,0,0};
+
+struct state{
+	int x,y,orng,dir,p;
+	friend bool operator<(const state&c,const state&b){
+		return c.p > b.p;
+	}
+};
+
+void bfs(){
+	memset(cost,0x3f3f3f3f,sizeof cost);
+	cost[0][0][0][0] = 0;
+	priority_queue<state>q;
+	q.push({0,0,0,0,0});
+	while(!q.empty()){
+		state src = q.top();
+		q.pop();
+		//cout<<src.x<<' '<<src.y<<' '<<src.orng<<' '<<src.dir<<' '<<src.p<<'\n';
+		if (src.x == n-1 && src.y == m-1){
+			cout<<src.p;
+			exit(0);
+		}
+		bool move = 0; 
+		for(int i=1;i<5;++i){
+			int nx = src.x+dr[i];
+			int ny = src.y+dc[i];
+			if (nx < 0 || ny < 0 || nx >= n || ny >= m)
+				continue;
+			if (a[nx][ny] == 3 && !src.orng)
+				continue;
+			if (!a[nx][ny])
+				continue;
+			if (src.dir && i != src.dir && a[src.x][src.y] == 4)
+				continue;
+			int norng = 0;
+			if ((src.orng && a[nx][ny] != 4) || a[nx][ny] == 2)
+				norng = 1; 
+			int ndir = 0; 
+			if (a[nx][ny] == 4)ndir = i; 
+			move = 1; 
+			if (cost[nx][ny][norng][ndir] <= src.p+1)
+				continue;
+			cost[nx][ny][norng][ndir] = src.p+1;
+			q.push({nx,ny,norng,ndir,src.p+1});
+		}
+		if (!move){
+			if (cost[src.x][src.y][src.orng][0] > src.p){
+				cost[src.x][src.y][src.orng][0] = src.p;
+				q.push({src.x,src.y,src.orng,0,src.p});
+			}
+		}
+	}
+}
+
+signed main(){
+
+	setIO("dream");	
+
+	ios::sync_with_stdio(false);
+	cin.tie(nullptr);
+
+	cin>>n>>m;
+	for(int i=0;i<n;++i)
+		for(int j=0;j<m;++j)
+			cin>>a[i][j];
+	bfs();
+	cout<<-1;
+}
