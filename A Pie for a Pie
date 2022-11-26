@@ -1,0 +1,78 @@
+#include <bits/stdc++.h>
+using namespace std;
+
+void setIO(string s) {
+   if (!s.empty()){
+      freopen((s + ".in").c_str(), "r", stdin);
+      freopen((s + ".out").c_str(), "w", stdout);
+   }
+}
+
+const int N = 200005;
+int n, d;
+int a[N],b[N],q[N],dis[N];
+
+struct cmpA{
+  bool operator()(int x,int y)const {
+    return b[x] < b[y]; 
+  }
+};
+multiset<int,cmpA>seA;
+struct cmpB{
+  bool operator()(int x,int y)const {
+    return a[x] < a[y]; 
+  }
+};
+multiset<int,cmpB>seB;
+
+signed main(){
+
+  setIO("piepie");
+
+  ios::sync_with_stdio(false);
+  cin.tie(nullptr);
+
+  cin>>n>>d;
+  for(int i=0;i<n*2;++i){
+    cin>>a[i]>>b[i];
+    a[i] = -a[i], b[i] = -b[i];
+    dis[i] = -1; 
+  }
+  int cur = 0, len = 0; 
+  for(int i=0;i<n;++i){
+    if (b[i] == 0){
+      dis[i] = 1;q[len++] = i;
+    }
+    else seA.insert(i);
+    if (a[i+n] == 0){
+      dis[i+n] = 1;q[len++] = i+n;
+    }
+    else seB.insert(i+n);
+  }
+  while(cur < len){
+    int i = q[cur];
+    if (i < n){
+      while(1){
+        auto it = seB.lower_bound(i);
+        if (it == seB.end() || a[*it] - a[i] > d)
+          break;
+        dis[*it] = dis[i] + 1; 
+        q[len++] = *it; 
+        seB.erase(it);  
+      }
+    }
+    else{
+      while(1){
+        auto it = seA.lower_bound(i);
+        if (it == seA.end () || b[*it] - b[i] > d)
+          break;
+        dis[*it] = dis[i] + 1; 
+        q[len++] = *it;
+        seA.erase(it); 
+      }
+    }
+    ++cur;
+  }
+  for(int i=0;i<n;++i)
+    cout<<dis[i]<<'\n';
+}
