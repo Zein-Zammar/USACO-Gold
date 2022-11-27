@@ -1,0 +1,47 @@
+#include <bits/stdc++.h>
+
+using namespace std;
+
+void setIO(string s) {
+	 if (!s.empty()){
+			freopen((s + ".in").c_str(), "r", stdin);
+			freopen((s + ".out").c_str(), "w", stdout);
+	 }
+}
+
+const int N = 1003;
+int n,m,c;
+int a[N],dp[N][N<<1];
+vector<int>g[N];
+
+int bt(int nd,int days){
+	if (days >= N*2)return -1e9;
+	int&ret = dp[nd][days];
+	if (ret != -1)return ret;
+	ret = -1e9; 
+	if (nd == 1)
+		ret = -days*days*c+a[nd];
+	for(auto&it:g[nd]){
+		 ret = max(ret, a[nd]+bt(it,days+1));
+	}
+	return ret;
+}
+
+signed main(){
+
+	setIO("time");
+
+	ios::sync_with_stdio(false);
+	cin.tie(nullptr);
+
+	memset(dp,-1,sizeof dp);
+	cin>>n>>m>>c;
+	for(int i=1;i<=n;++i)
+		cin>>a[i];
+	for(int i=0;i<m;++i){
+		int x,y;cin>>x>>y;
+		g[x].push_back(y);
+	}
+	cout<<bt(1,0);
+
+}
