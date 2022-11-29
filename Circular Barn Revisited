@@ -1,0 +1,50 @@
+#include <bits/stdc++.h>
+
+using namespace std;
+
+void setIO(string s) {
+	 if (!s.empty()){
+			freopen((s + ".in").c_str(), "r", stdin);
+			freopen((s + ".out").c_str(), "w", stdout);
+	 }
+}
+
+const int N = 102;
+int n, k;
+int r[N],dp[N][N][N][8];
+
+int bt(int id,int la,int e,int rem){
+	if (rem < 0)return 1e9; 
+	if (id == e && !rem)return 1e9; 
+	if (id > n)return (!rem ? 0 : 1e9);
+	int&ret = dp[id][la][e][rem];
+	if (ret != 0x3f3f3f3f)return ret;
+	if (id <= e)ret = bt(id+1,id,e,rem-1);
+	if (id != e){
+		if (la)
+			ret = min(ret, bt(id+1,la,e,rem)+(id-la)*r[id]);
+		else 
+			ret = min(ret, bt(id+1,la,e,rem)+(n+id-e)*r[id]);
+		}
+	return ret;
+}
+
+signed main(){
+
+	setIO("cbarn2");
+
+	ios::sync_with_stdio(false);
+	cin.tie(nullptr);
+
+	memset(dp,0x3f3f3f3f,sizeof dp);
+	cin>>n>>k;
+	for(int i=1;i<=n;++i){
+		cin>>r[i];
+	}
+	int ans = 1e9;
+	for(int i=1;i<=n;++i){
+		ans = min(ans,bt(1,0,i,k));
+	}
+	cout<<ans;
+
+}/// Check Long Long before sumbmtting ///
