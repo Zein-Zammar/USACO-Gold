@@ -1,0 +1,95 @@
+#include <bits/stdc++.h>
+
+using namespace std;
+
+void setIO(string s) {
+	 if (!s.empty()){
+			freopen((s + ".in").c_str(), "r", stdin);
+			freopen((s + ".out").c_str(), "w", stdout);
+	 }
+}
+
+const int N = 2e5+5,LOG = 20;
+int n, m, t;
+int c[N],st[N],en[N],dep[N],dp[N][LOG];
+bool ans[N];
+stack<int>stck[N]; 
+vector<int>vec[N],g[N];
+
+struct state{
+	int u,v,c;
+}e[N];
+
+void build(int nd,int p){
+	st[nd] = ++t;
+	for(auto&it:g[nd]){
+		if (it == p)continue;
+		dep[it] = dep[nd] + 1; 
+		dp[it][0] = nd;
+		for(int i=1;i<LOG;++i)
+			dp[it][i] = dp[dp[it][i-1]][i-1];
+		build(it,nd);
+	}
+	en[nd] = t; 
+}
+
+void jump(int&u,int k){
+	for(int i=0;i<LOG;++i)
+		if ((k>>i)&1)u = dp[u][i];
+}
+
+int lca(int u,int v){
+	if (dep[u] > dep[v])swap(u,v);
+	jump(v,dep[v]-dep[u]);
+	if (u == v)return u;
+	for(int i=LOG-1;~i;--i){
+		if (dp[u][i] != dp[v][i])
+			u = dp[u][i], v = dp[v][i];
+	}
+	return dp[u][0];
+}
+
+void dfs(int nd,int p){
+	stck[c[nd]].push(nd);
+	for(auto&it:vec[nd]){
+		int P = lca(e[it].u,e[it].v);
+		int src = 0; 
+		if (!stck[e[it].c].empty())
+			src = stck[e[it].c].top();
+		if (st[src] >= st[P] && en[src] <= en[P])
+			ans[it] = 1; 
+	}
+	for(auto&it:g[nd]){
+		if (it == p)continue;
+		dfs(it,nd);
+	}
+	stck[c[nd]].pop();
+}
+
+signed main(){
+	
+	setIO("milkvisits");
+
+	ios::sync_with_stdio(false);
+	cin.tie(nullptr);
+
+	cin>>n>>m;
+	for(int i=1;i<=n;++i){
+		cin>>c[i];
+	}
+	for(int i=1;i<n;++i){
+		int x,y;cin>>x>>y;
+		g[x].push_back(y);
+		g[y].push_back(x);
+	}
+	build(1,1);
+	for(int i=0;i<m;++i){
+		int x,y,z;cin>>x>>y>>z;
+		e[i] = {x,y,z};
+		vec[x].push_back(i);
+		vec[y].push_back(i);
+	}
+	dfs(1,1);
+	for(int i=0;i<m;++i)
+		cout<<ans[i];
+}
