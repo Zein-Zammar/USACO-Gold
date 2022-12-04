@@ -1,0 +1,59 @@
+#include <bits/stdc++.h>
+
+using namespace std;
+
+void setIO(string s) {
+	 if (!s.empty()){
+			freopen((s + ".in").c_str(), "r", stdin);
+			freopen((s + ".out").c_str(), "w", stdout);
+	 }
+}
+
+inline long long area(int x,int y,int xx,int yy){
+	return 1LL*(xx-x)*(yy-y);
+}
+
+signed main(){
+
+	setIO("split");
+	
+	ios::sync_with_stdio(false);
+	cin.tie(nullptr);
+
+	int n;cin>>n;
+	vector<pair<int,int>>p(n);
+	multiset<int>ox,oy;
+	int mnx = 1e9,mny = 1e9,mxx = -1e9,mxy = -1e9; 
+	for(int i=0;i<n;++i){
+		cin>>p[i].first>>p[i].second;
+		mnx = min(mnx,p[i].first);
+		mxx = max(mxx,p[i].first);
+		mny = min(mny,p[i].second);
+		mxy = max(mxy,p[i].second);
+		ox.insert(p[i].first);
+		oy.insert(p[i].second);
+	}
+	long long org = area(mnx,mny,mxx,mxy),ans = 0;
+	sort(p.begin(),p.end());
+	for(int it=0;it<2;++it){
+		mnx = mny = 1e9,mxx = mxy = -1e9; 
+		multiset<int>rx = ox, ry = oy;
+		for(int i=0;i<n;++i){
+			rx.erase(rx.find(p[i].first));
+			ry.erase(ry.find(p[i].second));
+			mnx = min(mnx,p[i].first);
+			mxx = max(mxx,p[i].first);
+			mny = min(mny,p[i].second);
+			mxy = max(mxy,p[i].second);
+			long long na = area(mnx,mny,mxx,mxy);
+			if (!rx.empty()){
+				na += area(*rx.begin(),*ry.begin(),*rx.rbegin(),*ry.rbegin());
+			}
+			ans = max(ans, org-na);
+		}
+		sort(p.begin(),p.end(),[&](pair<int,int>a,pair<int,int>b){
+			return (a.second == b.second ? a.first < b.first : a.second < b.second);
+		});
+	}
+	cout<<ans; 
+}/// Check Long Long before submitting ///
