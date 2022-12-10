@@ -1,0 +1,46 @@
+#include <bits/stdc++.h>
+
+using namespace std;
+
+void setIO(string s) {
+	 if (!s.empty()){
+			freopen((s + ".in").c_str(), "r", stdin);
+			freopen((s + ".out").c_str(), "w", stdout);
+	 }
+}
+
+const int N = 5001,M = 1000002;
+int n,q;
+int a[N],cnt[M<<1];
+long long dp[N][N];
+
+signed main(){
+
+	setIO("threesum");
+
+	ios::sync_with_stdio(false);
+	cin.tie(nullptr);
+
+	cin>>n>>q;
+	for(int i=1;i<=n;++i)cin>>a[i];
+	for(int i=1;i<n;++i){
+		++cnt[a[i+1]+M];
+		for(int j=i+2;j<=n;++j){
+			if (abs(a[i] + a[j]) < M-1)
+				dp[i][j] += cnt[-a[i]-a[j]+M];
+			++cnt[a[j]+M];
+		}
+		for(int j=i+1;j<=n;++j)cnt[a[j]+M] = 0; 
+	}
+	for(int len=3;len<=n;++len){
+		for(int i=1;i+len-1<=n;++i){
+			int j = i+len-1; 
+			dp[i][j] += dp[i+1][j] + dp[i][j-1]-dp[i+1][j-1];
+		}
+	}
+	while(q--){
+		int l,r;cin>>l>>r;
+		cout<<dp[l][r]<<'\n';
+	}
+	
+}
