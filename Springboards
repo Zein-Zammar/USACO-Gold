@@ -1,0 +1,75 @@
+#include <bits/stdc++.h>
+#define lx (nd << 1)
+#define rx ((nd << 1)|1)
+#define mid ((l+r)>>1)
+
+using namespace std;
+
+void setIO(string s) {
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+    if (!s.empty()){
+        freopen((s + ".in").c_str(), "r", stdin);
+        freopen((s + ".out").c_str(), "w", stdout);
+    }
+}
+
+const int N = 400005;
+int n, k, cur = 1;
+int L[N<<2],R[N<<2];
+long long seg[N<<2],ans[N];
+
+void upd(int nd,int l,int r,int id,long long v){
+    if (l == r){
+        return void (seg[nd] = min(seg[nd], v));
+    }
+    long long ret = 0;
+    if (id <= mid){
+        if (!L[nd])L[nd] = ++cur;
+        upd(L[nd],l,mid,id,v);
+    }
+    else{
+        if (!R[nd])R[nd] = ++cur; 
+        upd(R[nd],mid+1,r,id,v);
+    }
+    if (L[nd])ret = min(ret, seg[L[nd]]);
+    if (R[nd])ret = min(ret, seg[R[nd]]);
+    seg[nd] = ret; 
+}
+
+long long get(int nd,int l,int r,int s,int e){
+    if (l > e || r < s)return 0;
+    if (l >= s && r <= e)return seg[nd];
+    long long ret = 0;
+    if (L[nd])ret = get(L[nd],l,mid,s,e);
+    if (R[nd])ret = min(ret,get(R[nd],mid+1,r,s,e));
+    return ret; 
+}
+
+signed main(){
+
+    setIO("boards");
+
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+
+    cin>>n>>k;
+    vector<pair<pair<int,int>,pair<int,int>>>e;
+    for(int i=0;i<k;++i){
+        pair<int,int>a,b;
+        cin>>a.first>>a.second;
+        e.push_back({a,{i,1}});
+        cin>>b.first>>b.second;
+        e.push_back({b,{i,0}});
+    }
+    sort(e.begin(), e.end());
+    for(int i=0;i<k*2;++i){
+        if (e[i].second.second){
+            ans[e[i].second.first] = get(1,0,1e9,0,e[i].first.second)+e[i].first.first+e[i].first.second;
+        }
+        else{
+            upd(1,0,1e9,e[i].first.second,ans[e[i].second.first]-e[i].first.first-e[i].first.second);
+        }
+    }
+    cout<<seg[1]+n*2;
+}
