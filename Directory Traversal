@@ -1,0 +1,59 @@
+#include <bits/stdc++.h>
+
+using namespace std;
+
+void setIO(string s) {
+	 if (!s.empty()){
+			freopen((s + ".in").c_str(), "r", stdin);
+			freopen((s + ".out").c_str(), "w", stdout);
+	 }
+}
+
+const int N = 2e5+5;
+int n,a[N],num[N];
+long long ans,dp[N];
+vector<int>g[N];
+
+void dfs(int nd){
+	num[nd] = (g[nd].size() == 0);
+	for(auto&it:g[nd]){
+		dfs(it);
+		num[nd] += num[it];
+		dp[nd] += dp[it] + num[it] * (a[it] + (g[it].size() != 0));
+	}
+}
+
+void dfs2(int nd,long long p){
+	if (g[nd].size()){
+		ans = min(ans, dp[nd] + p);
+	}
+	for(auto&it:g[nd]){
+		long long np = dp[nd];
+		np -= (dp[it] + num[it] * (a[it] + (g[it].size() != 0)));
+		np += (num[1]-num[it])*3;
+		dfs2(it, np+p);
+	}
+}
+
+signed main(){
+
+	setIO("dirtraverse");
+
+	ios::sync_with_stdio(false);
+	cin.tie(nullptr);
+
+	cin>>n;
+	for(int i=1;i<=n;++i){
+		string s;cin>>s; 
+		a[i] = s.size();
+		int m;cin>>m;
+		for(int j=0;j<m;++j){
+			int x;cin>>x; 
+			g[i].push_back(x);
+		}
+	}
+	dfs(1);
+	ans = 1e18;
+	dfs2(1,0);
+	cout<<ans; 
+}
