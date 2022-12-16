@@ -1,0 +1,51 @@
+#include <bits/stdc++.h>
+
+using namespace std;
+
+void setIO(string s) {
+	 if (!s.empty()){
+			freopen((s + ".in").c_str(), "r", stdin);
+			freopen((s + ".out").c_str(), "w", stdout);
+	 }
+}
+
+const int N = 401;
+int n,k;
+int a[N],dp[N][N],mx[N][N];
+int bt(int id,int rem){
+	if (id == n)
+		return (rem == 0 ? 0 : 1e9);
+	int&ret = dp[id][rem];
+	if (~ret)return ret;
+	ret = 1e9; 
+	for(int i=id;i<n;++i){
+		int c = a[i] - (id ? a[id-1] : 0);
+		c = mx[id][i]*(i-id+1)-c;
+		ret = min(ret, bt(i+1,rem-1)+c);
+	}
+	return ret; 
+}
+
+signed main(){
+
+	setIO("snakes");
+
+	ios::sync_with_stdio(false);
+	cin.tie(nullptr);
+
+	memset(dp,-1,sizeof dp);
+	cin>>n>>k;
+	for(int i=0;i<n;++i){
+		cin>>a[i];
+	}
+	for(int i=0;i<n;++i){
+		int t = 0;
+		for(int j=i;j<n;++j){
+			t = max(t,a[j]);
+			mx[i][j] = t; 
+		}
+	}
+	for(int i=1;i<n;++i)
+		a[i] += a[i-1];
+	cout<<bt(0,k+1);
+}
