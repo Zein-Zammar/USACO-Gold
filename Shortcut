@@ -1,0 +1,75 @@
+#include <bits/stdc++.h>
+
+using namespace std;
+
+void setIO(string s) {
+	 if (!s.empty()){
+			freopen((s + ".in").c_str(), "r", stdin);
+			freopen((s + ".out").c_str(), "w", stdout);
+	 }
+}
+
+const int N = 10004;
+int n, m, t;
+int a[N],p[N],dep[N],num[N];
+long long cost[N];
+vector<pair<int,int>>g[N];
+
+void dij(){
+	priority_queue<pair<long long,int>,
+	vector<pair<long long,int>>,greater<pair<long long,int>>>pq;
+	for(int i=2;i<=n;++i){
+		cost[i] = 1e15;
+	}
+	pq.push({0,1});
+	while(!pq.empty()){
+		int nd = pq.top().second;
+		long long cst = pq.top().first;
+		pq.pop();
+		if (cst != cost[nd])
+			continue;
+		for(auto&it:g[nd]){
+			if (it.second+cst > cost[it.first])
+				continue;
+			if (it.second + cst == cost[it.first] && nd > p[it.first])
+				continue;
+			dep[it.first] = dep[nd] + 1; 
+			p[it.first] = nd; 
+			cost[it.first] = cst+it.second;
+			pq.push({cost[it.first],it.first});
+		}
+	}
+}
+
+signed main(){
+
+	setIO("shortcut");
+
+	ios::sync_with_stdio(false);
+	cin.tie(nullptr);
+
+	cin>>n>>m>>t;
+	for(int i=1;i<=n;++i){
+		cin>>a[i];
+		num[i] = a[i];
+	}
+	for(int i=0;i<m;++i){
+		int x,y,z;cin>>x>>y>>z;
+		g[x].emplace_back(y,z);
+		g[y].emplace_back(x,z);
+	}
+	dij();
+	vector<pair<int,int>>v;
+	for(int i=1;i<=n;++i){
+		v.emplace_back(dep[i],i);
+	}
+	sort(v.begin(),v.end()); 
+	for(int i=n-1;~i;--i){
+		num[p[v[i].second]] += num[v[i].second];
+	}
+	long long ans = 0; 
+	for(int i=1;i<=n;++i){
+		ans = max(ans, 1LL*num[i]*(cost[i]-t));
+	}
+	cout<<ans; 
+}
