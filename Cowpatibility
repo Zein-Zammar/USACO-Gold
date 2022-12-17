@@ -2,6 +2,7 @@
 #include <bits/stdc++.h>
 
 using namespace std;
+int a[50000][5];
 
 void setIO(string s) {
     ios::sync_with_stdio(false);
@@ -21,6 +22,7 @@ struct VectorHasher{
         return hash;
     }
 };
+unordered_map<vector<int>,int,VectorHasher>mp;
 
 signed main(){
 
@@ -30,13 +32,11 @@ signed main(){
     cin.tie(nullptr);
 
     long long n;cin>>n;
-    unordered_map<vector<int>,int,VectorHasher>mp;
-    vector<vector<int>>a(n,vector<int>(5));
     for(int i=0;i<n;++i){
         for(int j=0;j<5;++j){
             cin>>a[i][j];
         }
-        sort(a[i].begin(), a[i].end());
+        sort(a[i], a[i]+5);
         for(int s=1;s<32;++s){
             vector<int>sub;
             for(int j=0;j<5;++j){
@@ -52,7 +52,6 @@ signed main(){
             ans -= ((long long)it.second*(it.second-1))>>1;
         else ans += ((long long)it.second*(it.second-1))>>1;
     }
-    
     cout<<ans; 
 
 }
