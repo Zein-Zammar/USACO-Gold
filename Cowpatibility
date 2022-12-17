@@ -28,9 +28,6 @@ signed main(){
 
     setIO("cowpatibility");
 
-    ios::sync_with_stdio(false);
-    cin.tie(nullptr);
-
     long long n;cin>>n;
     for(int i=0;i<n;++i){
         for(int j=0;j<5;++j){
