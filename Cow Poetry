@@ -49,9 +49,6 @@ signed main(){
 
     setIO("poetry");
 
-    ios::sync_with_stdio(false);
-    cin.tie(nullptr);
-
     memset(dp,-1,sizeof dp);
     cin>>n>>m>>k;
     for(int i=0;i<n;++i){
