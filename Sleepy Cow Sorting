@@ -1,0 +1,49 @@
+#include <ext/pb_ds/assoc_container.hpp>
+#include <ext/pb_ds/tree_policy.hpp>
+#include <bits/stdc++.h>
+
+using namespace std;
+using namespace __gnu_pbds;
+
+void setIO(string s) {
+	ios::sync_with_stdio(false);
+	cin.tie(nullptr);
+	 if (!s.empty()){
+			freopen((s + ".in").c_str(), "r", stdin);
+			freopen((s + ".out").c_str(), "w", stdout);
+	 }
+}
+
+template <class T> using Tree = tree<T,
+null_type, less<T>,rb_tree_tag,tree_order_statistics_node_update>;
+
+Tree<int> se;
+
+signed main(){
+
+	setIO("sleepy");
+	
+	int n; cin>>n;
+	vector<int>a(n); 
+	for(int i=0;i<n;++i){
+		cin>>a[i];
+	}
+	se.insert(a[n-1]);
+	for(int i=n-2;i;--i){
+		if (a[i] < a[i+1])
+			se.insert(a[i]);
+		else break; 
+	}
+	vector<int>v; 
+	for(int i=0;(int)se.size() < n;++i){
+		int less = n-se.size()-1; 
+		less += se.order_of_key(a[i]);
+		v.push_back(less); 
+		se.insert(a[i]); 
+	}
+	cout<<v.size()<<'\n';
+	for(int i=0;i<(int)v.size()-1;++i)
+		cout<<v[i]<<' ';
+	cout<<v.back();
+
+}
