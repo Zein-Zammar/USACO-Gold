@@ -1,0 +1,49 @@
+#include <bits/stdc++.h>
+
+using namespace std;
+
+void setIO(string s) {
+	ios::sync_with_stdio(false);
+	cin.tie(nullptr);
+	 if (!s.empty()){
+			freopen((s + ".in").c_str(), "r", stdin);
+			freopen((s + ".out").c_str(), "w", stdout);
+	 }
+}
+
+const int N = 7503;
+const int Mod = 2019201997; 
+int n, k, cost[N], dist[N][N];
+bitset<N>in; 
+
+void prim(){
+	for(int i=0;i<=n;++i)
+		cost[i] = Mod;
+	for(int i=0;i<n-1;++i){
+		int mn = 1; 
+		for(int j=2;j<=n;++j){
+			if (cost[j] < cost[mn] && !in[j])
+				mn = j; 
+		}
+		in[mn] = 1; 
+		for(int j=1;j<=n;++j){
+			if (!in[j])
+				cost[j] = min(cost[j],dist[min(mn,j)][max(mn,j)]);
+		}
+	}
+}
+
+signed main(){
+
+	setIO("walk");
+	
+	cin>>n>>k;
+	for(int i=1;i<=n;++i)
+		for(int j=i+1;j<=n;++j)
+			dist[i][j] = (2019201913LL*i+2019201949LL*j)%Mod;
+	
+	prim();
+	sort(cost+1,cost+1+n); 
+	cout<<cost[n-k+1];
+	
+}
