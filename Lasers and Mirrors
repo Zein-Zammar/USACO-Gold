@@ -1,0 +1,44 @@
+#include <bits/stdc++.h>
+
+using namespace std;
+
+void setIO(string s) {
+	ios::sync_with_stdio(false);
+	cin.tie(nullptr);
+	if (!s.empty()){
+		freopen((s + ".in").c_str(), "r", stdin);
+		freopen((s + ".out").c_str(), "w", stdout);
+	}
+}
+
+const int N = 100005;
+int n, cost[N], p[N][2];
+map<int,vector<int>>mp[2];
+
+signed main(){
+
+	setIO("lasers");
+
+	cin>>n;
+	for(int i=0;i<n+2;++i){
+		cin>>p[i][0]>>p[i][1]; 
+		mp[0][p[i][0]].push_back(i); 
+		mp[1][p[i][1]].push_back(i); 
+	}
+	queue<pair<int,bool>>q;// 0 ver, 1 hor 
+	q.emplace(0,0);
+	q.emplace(0,1);
+	memset(cost,-1,sizeof cost);
+	cost[0] = 0; 
+	while(!q.empty()){
+		pair<int,int>src = q.front();
+		q.pop();
+		for(auto&it:mp[src.second][p[src.first][src.second]]){
+			if (cost[it] != -1)continue;
+			cost[it] = cost[src.first] + 1; 
+			if (it == 1)return cout<<cost[src.first],0;
+			q.emplace(it,src.second^1);
+		}
+	}
+	cout<<-1; 
+}
