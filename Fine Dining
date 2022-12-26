@@ -1,0 +1,69 @@
+#include <bits/stdc++.h>
+
+using namespace std;
+
+void setIO(string s) {
+	ios::sync_with_stdio(false);
+	cin.tie(nullptr);
+	if (!s.empty()){
+		freopen((s + ".in").c_str(), "r", stdin);
+		freopen((s + ".out").c_str(), "w", stdout);
+	}
+}
+
+const int N = 100005;
+int n, m, k;
+int a[N],id[N];
+long long org[N],cost[N]; 
+vector<pair<int,int>>g[N]; 
+
+priority_queue<pair<long long,int>,vector<pair<long long,int>>,greater<pair<long long,int>>>pq; 
+
+void dij(){
+	while(!pq.empty()){
+		pair<int,int>src = pq.top();
+		pq.pop();
+		if (cost[src.second] != src.first)
+			continue;
+		for(auto&it:g[src.second]){
+			if (cost[it.first] <= src.first + it.second)
+				continue;
+			cost[it.first] = src.first + it.second; 
+			pq.emplace(cost[it.first],it.first); 
+		}
+	}
+}
+
+signed main(){
+
+	setIO("dining"); 
+	
+	cin>>n>>m>>k;
+	for(int i=0;i<m;++i){
+		int x,y,z;cin>>x>>y>>z;
+		g[x].emplace_back(y,z);
+		g[y].emplace_back(x,z);
+	}
+	for(int i=0;i<k;++i){
+		cin>>id[i];
+		cin>>a[id[i]]; 
+	}
+	for(int i=1;i<n;++i)
+		cost[i] = 1e18; 
+	pq.emplace(0,n); 
+	dij(); 
+	for(int i=1;i<=n;++i){
+		org[i] = cost[i]; 
+	}
+	for(int i=1;i<n;++i)
+		cost[i] = 1e18; 
+	for(int i=0;i<k;++i){
+		cost[id[i]] = org[id[i]] - a[id[i]]; 
+		pq.emplace(cost[id[i]],id[i]); 
+	}
+	dij();
+	for(int i=1;i<n;++i)
+		cout<<(org[i] >= cost[i])<<'\n';
+	
+
+}
