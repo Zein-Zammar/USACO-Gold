@@ -1,0 +1,46 @@
+#include <bits/stdc++.h>
+using namespace std;
+
+const int N = 200005;
+int n,p[N],sz[N];
+
+int get(int u){
+	return p[u] = (p[u] == u ? u : get(p[u]));
+}
+
+bool uni(int u,int v){
+	u = get(u), v = get(v); 
+	if(u == v)return 0;
+	if(sz[u] > sz[v])swap(u,v);
+	sz[v] += sz[u];
+	p[u] = v; 
+	return 1; 
+}
+
+signed main(){
+
+	ios::sync_with_stdio(false);
+	cin.tie(nullptr);
+
+	cin>>n;
+	for(int i=1;i<=2*n;++i)sz[i] = 1, p[i] = i; 
+	vector<pair<int,pair<pair<int,int>,pair<int,int>>>>e;
+	for(int i=0;i<n;++i){
+		int c;cin>>c;
+		vector<int>a(4); 
+		for(int j=0;j<4;++j){
+			cin>>a[j];
+		}
+		uni(a[0],a[1]);
+		uni(a[2],a[3]);
+		e.push_back({c,{ {a[0],a[2]},{a[1],a[3]} } });
+		e.push_back({c,{ {a[0],a[3]},{a[1],a[2]} } });
+	}
+	sort(e.begin(),e.end()); 
+	int ans = 0;
+	for(int i=0;i<(int)e.size();++i){
+		ans += e[i].first*uni(e[i].second.first.first,e[i].second.first.second);
+		uni(e[i].second.second.first,e[i].second.second.second);
+	}
+	cout<<ans; 
+}
