@@ -1,0 +1,33 @@
+#include <bits/stdc++.h>
+using namespace std;
+
+signed main(){
+
+	ios::sync_with_stdio(false);
+	cin.tie(nullptr);
+
+	string s;cin>>s;
+	map<char,int>mp;
+	for(int i=0;i<(int)s.size();++i){
+		mp[s[i]];
+	}
+	int cnt = 0;
+	for(auto&it:mp)it.second = cnt++;
+	vector<vector<int>>occ(cnt,vector<int>(cnt));
+	for(int i=0;i+1<(int)s.size();++i){
+		++occ[mp[s[i]]][mp[s[i+1]]];
+	}
+	vector<int>dp(1<<cnt,1e9);
+	dp[0] = 1; 
+	for(int mask=1;mask<(1<<cnt);++mask){
+		for(int j=0;j<cnt;++j){
+			int ns = 0; 
+			for(int k=0;k<cnt;++k){
+				if((mask>>k)&1)
+					ns += occ[j][k];
+			}
+			dp[mask] = min(dp[mask],dp[mask^(1<<j)]+ns);
+		}
+	}
+	cout<<dp[(1<<cnt)-1]; 
+}
