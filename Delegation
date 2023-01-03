@@ -1,0 +1,58 @@
+#include <bits/stdc++.h>
+using namespace std;
+
+const int N = 100005;
+int n,dp[N],cnt[N];
+vector<int>g[N];
+bool ans; 
+
+void dfs(int nd,int p,int k){
+  for(auto&it:g[nd]){
+    if(it == p)continue;
+    dfs(it,nd,k);
+    ++dp[it]; 
+  }
+  for(auto&it:g[nd]){
+    if(it == p || dp[it] == k)continue; 
+    if(cnt[k-dp[it]]){
+      --cnt[k-dp[it]];
+    }
+    else{
+      ++cnt[dp[it]]; 
+    }
+  }
+  int tup = 0;
+  for(auto&it:g[nd]){
+    if(it == p || !cnt[dp[it]])continue;
+    --cnt[dp[it]]; 
+    if(tup)ans = 0;
+    else tup = dp[it]; 
+  }
+  dp[nd] = tup;
+}
+
+signed main(){
+  
+  ios::sync_with_stdio(false);
+  cin.tie(nullptr);
+  freopen("deleg.in","r", stdin);
+	freopen("deleg.out","w", stdout);
+
+  cin>>n;
+  for(int i=1;i<n;++i){
+    int x,y;cin>>x>>y;
+    g[x].push_back(y);
+    g[y].push_back(x);
+  }
+  --n;
+  for(int i=1;i<=n;++i){
+    if(n%i){
+      cout<<0;
+      continue; 
+    }
+    ans = 1; 
+    dfs(1,1,i); 
+    cout<<ans; 
+  }
+
+}
