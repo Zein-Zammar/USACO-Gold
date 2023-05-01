@@ -1,0 +1,106 @@
+#include <bits/stdc++.h>
+using namespace std;
+
+struct queries {
+  char c;
+  int u, v, e; 
+};
+
+const int N = 200005;
+
+int p[N]; 
+int ans[N]; 
+bool mark[N];
+bool active[N];
+queries qry[N * 2]; 
+vector<int> comp[N];
+
+inline int get (int v) {
+  return p[v] = (p[v] == v ? v : get(p[v]));
+}
+
+inline void uni (int u, int v, int i) {
+  u = get(u), v = get(v);
+  if (u == v) {
+    return; 
+  }
+  if (ans[u] && !ans[v]) {
+    for (int j : comp[v]) {
+      ans[j] = i; 
+    }
+  }
+  else if (ans[v] && !ans[u]) {
+    for (int j : comp[u]) {
+      ans[j] = i; 
+    }
+  }
+  if (comp[u].size() > comp[v].size()) {
+    swap(comp[u], comp[v]);
+  }
+  for (int j : comp[u]) {
+    comp[v].push_back(j); 
+  }
+  p[u] = v; 
+  comp[u].clear(); 
+}
+
+int main() {
+  ios_base::sync_with_stdio(false);
+  cin.tie(nullptr); 
+  int n, q;
+  cin >> n >> q;
+  for (int i = 1; i <= n; ++i) {
+    p[i] = i; 
+    active[i] = true; 
+    comp[i].push_back(i);
+  }
+  vector<pair<int, int>> edges;
+  for (int i = 0; i < q; ++i) {
+    cin >> qry[i].c;
+    if (qry[i].c == 'A') {
+      int u, v;
+      cin >> u >> v;
+      edges.emplace_back(u, v);
+      qry[i].u = u, qry[i].v = v;  
+    }
+    else if (qry[i].c == 'D') {
+      int v;
+      cin >> v;
+      qry[i].v = v; 
+      active[v] = false; 
+    }
+    else if (qry[i].c == 'R') {
+      int e;
+      cin >> e; 
+      --e; 
+      qry[i].e = e; 
+      mark[e] = true; 
+    }
+  }
+  for (int i = 1; i <= n; ++i) {
+    if (active[i]) ans[i] = q;
+  }
+  for (int i = 0; i < (int) edges.size(); ++i) {
+    if (!mark[i]) {
+      uni(edges[i].first, edges[i].second, q); 
+    }
+  }
+  for (int i = q - 1; i >= 0; --i) {
+    if (qry[i].c == 'A') continue; 
+    if (qry[i].c == 'D') {
+      active[qry[i].v] = true; 
+      if (!ans[qry[i].v]) {
+        for (int j : comp[get(qry[i].v)]) {
+          ans[j] = i; 
+        }
+      }
+    }
+    else {// qry[i].c == 'R'
+      uni(edges[qry[i].e].first, edges[qry[i].e].second, i); 
+    }
+  }
+  for (int i = 1; i <= n; ++i) {
+    cout << ans[i] << "\n";
+  }
+  return 0; 
+}
