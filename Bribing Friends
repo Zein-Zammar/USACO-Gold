@@ -1,0 +1,44 @@
+#include <bits/stdc++.h>
+#define int long long
+using namespace std;
+
+struct cows {
+  int p, c, x;
+};
+
+const int N = 2002;
+
+cows cow[N]; 
+int dp[N][N * 2];
+
+signed main() {
+  ios::sync_with_stdio(false);
+  cin.tie(0);
+  int n, mon, ice;
+  cin >> n >> mon >> ice;
+  for (int i = 1; i <= n; ++i) {
+    cin >> cow[i].p >> cow[i].c >> cow[i].x; 
+  }
+  sort(cow + 1, cow + 1 + n, [&](cows& a, cows& b) {
+    return a.x < b.x;
+  }); 
+  for (int i = 0; i <= n; ++i) {
+    for (int j = 0; j <= mon + ice; ++j) {
+      dp[i][j] = -1e9; 
+    }
+  }
+  dp[0][0] = 0; 
+  for (int i = 1; i <= n; ++i) {
+    for (int j = mon + ice; j >= 0; --j) {// if you still have ice then j < ice
+      int use = min(max(0ll, ice - j), cow[i].c * cow[i].x);
+      int discount = use / cow[i].x; 
+      int cost = cow[i].c - discount + use; 
+      dp[i][j] = max(dp[i][j], dp[i - 1][j]); 
+      if (j + cost <= mon + ice && dp[i][j] >= 0) {
+        dp[i][j + cost] = max(dp[i][j + cost], dp[i][j] + cow[i].p); 
+      }
+    }
+  }
+  cout << *max_element(dp[n], dp[n] + mon + ice + 1) << '\n'; 
+  return 0;
+}
