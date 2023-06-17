@@ -1,0 +1,104 @@
+#include "bits/stdc++.h"
+using namespace std;
+
+#ifdef Nero
+#include "Deb.h"
+#else
+#define deb(...)
+#endif
+
+signed main(){
+  ios::sync_with_stdio(false);
+  cin.tie(nullptr);
+  int tt;
+  cin >> tt;
+  while(tt--){
+    int n;
+    cin >> n;
+    vector<int> pr(n, -1);
+    vector<vector<int>> g(n); 
+    for (int i = 0; i < n - 1; ++i) {
+      int u, v;
+      cin >> u >> v;
+      --u, --v; 
+      g[v].push_back(u); 
+      pr[u] = v; 
+    }
+    vector<vector<int>> in_dep(n); 
+    function<void(int, int)> Dfs = [&](int v, int d) {
+      in_dep[d].push_back(v); 
+      for (int u : g[v]) {
+        Dfs(u, d + 1); 
+      }
+    }; 
+    int root = 0;
+    while (pr[root] != -1) root++; 
+    Dfs(root, 0); 
+    int m;
+    cin >> m;
+    vector<bool> ex(n); 
+    vector<vector<int>> f(n); 
+    for (int i = 0; i < m - 1; ++i) {
+      int u, v;
+      cin >> u >> v;
+      --u, --v;
+      f[v].push_back(u); 
+      ex[u] = true;
+      ex[v] = true; 
+    }
+    vector<vector<int>> dp(n, vector<int> (n)); 
+    for (int dep = n - 1; dep >= 0; --dep) {
+      for (int a : in_dep[dep]) {
+        if (ex[a]) {
+          dp[a][a] = true;
+          continue;
+        }
+        for (int b : in_dep[dep]) {
+          if (!ex[b] || b <= a) {
+            continue;
+          }
+          bool ok = true; 
+          for (int c : g[a]) {
+            bool fail = true; 
+            for (int d : f[b]) {
+              if (dp[c][d]) {
+                fail = false;
+                break; 
+              }
+            }
+            if (fail) {
+              ok = false;
+              break;
+            }
+          }
+          if (ok) {
+            dp[a][b] = true; 
+          }
+        }
+      }
+    }
+    vector<int> la(n);
+    la[root] = root;
+    vector<pair<int, int>> ans;
+    for (int dep = 1; dep < n; ++dep) {
+      for (int a : in_dep[dep]) {
+        if (ex[a]) {
+          la[a] = a;
+          continue;
+        }
+        for (int b : f[la[pr[a]]]) {
+          if (dp[a][b] && a != b) {
+            ans.emplace_back(a + 1, b + 1);
+            la[a] = b; 
+            break; 
+          }
+        }
+      }
+    }
+    cout << ans.size() << '\n';
+    for (auto [v, p] : ans) {
+      cout << v << ' ' << p << '\n'; 
+    }
+  }
+  return 0;
+}
