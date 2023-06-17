@@ -1,0 +1,71 @@
+#include "bits/stdc++.h"
+using namespace std;
+
+#ifdef Nero
+#include "Deb.h"
+#else
+#define deb(...)
+#endif
+
+const int B = 400; //sqrt N
+
+signed main(){
+  ios::sync_with_stdio(false);
+  cin.tie(nullptr);
+  int n, m;
+  cin >> n >> m;
+  vector<int> deg(n); 
+  vector<vector<int>> g(n); 
+  for(int i = 0; i < m; ++i) {
+    int x, y;
+    cin >> x >> y;
+    --x, --y;
+    g[x].push_back(y);
+    g[y].push_back(x);
+    ++deg[x]; 
+    ++deg[y]; 
+  }
+  vector<bool> inActive(n); 
+  int ans = 1; 
+  for (int i = 1; i < B; ++i) {
+    queue<int> que; 
+    for (int j = 0; j < n; ++j) {
+      if (!inActive[j] && deg[j] == i - 1) {
+        inActive[j] = true; 
+        que.push(j); 
+      }
+    }
+    while (!que.empty()) {
+      int v = que.front();
+      que.pop();
+      for (int u : g[v]) {
+        if (!inActive[u]) {
+          --deg[u];
+          if (deg[u] == i - 1) {
+            que.push(u); 
+            inActive[u] = true; 
+          }
+        }
+      }
+    }
+    vector<bool> vis(n);
+    function<int(int)> Dfs = [&](int v) {
+      int ret = 1; 
+      vis[v] = true;
+      for (int u : g[v]) {
+        if (!vis[u] && !inActive[u]) {
+          ret += Dfs(u);
+        }
+      }
+      return ret;
+    };
+    for (int j = 0; j < n; ++j) {
+      if (!vis[j] && !inActive[j]) {
+        int sz = Dfs(j); 
+        ans = max(ans, sz * i); 
+      }
+    }
+  }
+  cout << ans << '\n'; 
+  return 0;
+}
