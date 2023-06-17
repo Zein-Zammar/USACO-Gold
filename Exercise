@@ -1,0 +1,56 @@
+#include "bits/stdc++.h"
+using namespace std;
+
+#ifdef Nero
+#include "Deb.h"
+#else
+#define deb(...)
+#endif
+
+signed main(){
+  freopen("exercise.in", "r", stdin);
+  freopen("exercise.out", "w", stdout);
+  ios::sync_with_stdio(false);
+  cin.tie(nullptr);
+  int n, m;
+  cin >> n >> m;
+  if (n == 1) {
+    cout << 1 << '\n';
+    return 0; 
+  }
+  auto add = [&](int& a, int b) {
+    a += b;
+    if (a >= m) a -= m;
+  };
+  auto mul = [&](int a, int b) {
+    return (int) ((long long) a * b % m); 
+  };
+  vector<int> primes;
+  vector<bool> np(n + 1); 
+  for (int i = 2; i <= n; ++i) {
+    if (np[i]) {
+      continue;
+    }
+    primes.push_back(i); 
+    for (int j = i * i; j <= n; j += i) {
+      np[j] = true; 
+    }
+  }
+  vector<vector<int>> dp(primes.size() + 1, vector<int> (n + 1)); 
+  dp[0][0] = 1; //idx, sum = Multiplication of pi ^ xi with this sum
+  for (int i = 1; i <= (int) primes.size(); ++i) {
+    int cur = primes[i - 1]; 
+    dp[i] = dp[i - 1]; 
+    for (; cur <= n; cur *= primes[i - 1]) {
+      for (int j = 0; j + cur <= n; ++j) {
+        add(dp[i][j + cur], mul(dp[i - 1][j], cur)); 
+      }
+    }
+  }
+  int ans = 0; 
+  for (int i = 0; i <= n; ++i) {
+    add(ans, dp[primes.size()][i]); 
+  }
+  cout << ans << '\n'; 
+  return 0;
+}
