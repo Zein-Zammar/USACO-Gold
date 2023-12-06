@@ -1,0 +1,78 @@
+#include "bits/stdc++.h"
+using namespace std;
+
+#ifdef Nero
+#include "Deb.h"
+#else
+#define deb(...)
+#endif
+
+const int N = 1e5 + 5;
+
+vector<int> g[N]; 
+vector<int> stk[2][N];
+bool vis[2][N], have[2][N]; 
+int c[N], s[N], f[N], a[N];
+
+void clear(int n) {
+  memset(vis, 0, sizeof vis); 
+  memset(have, 0, sizeof have); 
+  for (int i = 1; i <= n; ++i) {
+    g[i].clear();
+    stk[0][i].clear();
+    stk[1][i].clear();
+  }
+}
+
+int main() {
+  ios::sync_with_stdio(false);
+  cin.tie(nullptr);
+  int tt;
+  cin >> tt;
+  while(tt--) {
+    int n, m;
+    cin >> n >> m;
+    for (int i = 1; i <= n; ++i) cin >> c[i];
+    for (int i = 1; i <= n; ++i) cin >> s[i];
+    for (int i = 1; i <= n; ++i) cin >> f[i];
+    for(int i = 0; i < m; ++i) {
+      int u, v;
+      cin >> u >> v;
+      g[u].push_back(v);
+      g[v].push_back(u);
+    }
+    for (int rep = 0; rep < 2; ++rep) {
+      for (int i = 1; i <= n; ++i) {
+        a[i] = (rep ? f[i] : s[i]); 
+      }
+      queue<int> que;
+      que.push(1);
+      while (!que.empty()) {
+        int v = que.front();
+        que.pop();
+        if (vis[rep][v] || (rep == 1 && !vis[0][v])) {
+          continue; 
+        }
+        vis[rep][v] = have[rep][a[v]] = true; 
+        for (int u : stk[rep][a[v]]) {
+          que.push(u); 
+        }
+        for (int u : g[v]) {
+          if (have[rep][c[u]] || (rep == 1 && c[u] == f[u])) {
+            que.push(u); 
+          } else {
+            stk[rep][c[u]].push_back(u);
+          }
+        }
+      }
+    }
+    bool ok = true;
+    for (int i = 1; i <= n; ++i) {
+      ok &= (vis[0][i] || s[i] == f[i]); 
+      ok &= (vis[1][i] || (!vis[0][i])); 
+    }
+    cout << (ok ? "YES" : "NO") << '\n';
+    clear(n); 
+  }
+  return 0;
+}
