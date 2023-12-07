@@ -1,0 +1,111 @@
+#include "bits/stdc++.h"
+using namespace std;
+
+#ifdef Nero
+#include "Deb.h"
+#else
+#define deb(...)
+#endif
+
+const int N = 502; 
+
+long long a[N], ans[N]; 
+vector<long long> sums[N], sI[N], tsI[N];
+vector<pair<long long, int>> sL[N], sR[N]; 
+
+vector<long long> merge(vector<long long>& vL, vector<long long>& vR) {
+  vector<long long> ret;
+  int i = 0, j = 0;
+  while (i < (int) vL.size() || j < (int) vR.size()) {
+    if (j == (int) vR.size() || (i < (int) vL.size() && vL[i] < vR[j])) {
+      ret.push_back(vL[i++]); 
+    } else {
+      ret.push_back(vR[j++]);
+    }
+  }
+  return ret;
+}
+
+int main() {
+  ios::sync_with_stdio(false);
+  cin.tie(nullptr);
+  int n;
+  cin >> n;
+  for (int i = 1; i <= n; ++i) {
+    cin >> a[i]; 
+  }
+  for (int l = 1; l <= n; ++l) {//N
+    long long s = 0; 
+    for (int r = l; r <= n; ++r) {//N
+      s += a[r]; 
+      sL[l].emplace_back(s, r); 
+    } 
+    sort(sL[l].begin(), sL[l].end());//N logn 
+  }
+  for (int r = 1; r <= n; ++r) {//N
+    long long s = 0;
+    for (int l = r; l >= 1; --l) {//N
+      s += a[l];
+      sR[r].emplace_back(s, l); 
+    }
+    sort(sR[r].begin(), sR[r].end()); //N logn
+  }
+  for (long long i = 1, s = 0; i <= n; ++i) {
+    s += a[i];
+    sI[1].push_back(s); 
+  }
+  sort(sI[1].begin(), sI[1].end()); 
+  for (int i = 2; i <= n; ++i) {//N
+    sI[i] = sI[i - 1]; 
+    long long s = 0;
+    vector<long long> tmp = {a[i]}; 
+    for (int l = i - 1; l >= 1; --l) {
+      s += a[l];
+      sI[i].erase(find(sI[i].begin(), sI[i].end(), s)); //total N * N * (N - 1) / 2
+    }
+    s = 0; 
+    for (int r = i + 1; r <= n; ++r) {
+      s += a[r];
+      tmp.push_back(s + a[i]); 
+    }
+    sort(tmp.begin(), tmp.end()); //N logn
+    sI[i] = merge(sI[i], tmp); //N ^ 2
+  }
+  fill(ans + 1, ans + 1 + n, LLONG_MAX); 
+  vector<long long> cur; 
+  for (int i = 1; i <= n; ++i) {
+    int p = -1;
+    for (int j = 0; j < (int) sI[i].size(); ++j) {
+      while (p + 1 < (int) cur.size() && cur[p + 1] < sI[i][j]) {
+        p++;
+      }
+      if (p != -1) ans[i] = min(ans[i], sI[i][j] - cur[p]);
+      if (p + 1 < (int) cur.size()) ans[i] = min(ans[i], cur[p + 1] - sI[i][j]); 
+    }
+    vector<long long> tr;
+    for (auto& it : sR[i]) {//N
+      tr.push_back(it.first); 
+    }
+    cur = merge(cur, tr); //N  ^ 2
+  }
+  cur.clear(); 
+  for (int i = n; i >= 1; --i) {
+    int p = -1;
+    for (int j = 0; j < (int) sI[i].size(); ++j) {
+      while (p + 1 < (int) cur.size() && cur[p + 1] < sI[i][j]) {
+        p++;
+      }
+      if (p != -1) ans[i] = min(ans[i], sI[i][j] - cur[p]);
+      if (p + 1 < (int) cur.size()) ans[i] = min(ans[i], cur[p + 1] - sI[i][j]); 
+    }
+    vector<long long> tl;
+    for (auto& it : sL[i]) {
+      tl.push_back(it.first);
+    }
+    cur = merge(cur, tl); 
+  }
+  for (int i = 1; i <= n; ++i) {
+    cout << ans[i] << '\n'; 
+  }
+  return 0;
+}
