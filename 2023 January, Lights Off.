@@ -1,0 +1,59 @@
+#include "bits/stdc++.h"
+using namespace std;
+
+#ifdef Nero
+#include "Deb.h"
+#else
+#define deb(...)
+#endif
+
+const int N = 20;
+
+int flip[N * 3][N];
+bool dp[N * 3][1 << N];
+
+int main() {
+  ios::sync_with_stdio(false);
+  cin.tie(nullptr);
+  int t, n;
+  cin >> t >> n;
+  for (int moves = 1; moves < n * 3; ++moves) {
+    for (int last = 0; last < n; ++last) {
+      flip[moves][last] = flip[moves - 1][(last + 1) % n] ^ (1 << last); 
+    }
+  }
+  dp[0][0] = true; 
+  for (int moves_left = 1; moves_left < n * 3; ++moves_left) {
+    for (int mask = 0; mask < (1 << n); ++mask) {
+      for (int last = 0; last < n; ++last) {
+        dp[moves_left][mask] |= dp[moves_left - 1][mask ^ flip[moves_left][last]];         
+      }
+    }
+  }
+  auto to_bin = [&](string s) {
+    int ret = 0;
+    for (int i = 0; i < n; ++i) {
+      ret |= (1 << (n - i - 1)) * (s[i] - '0'); 
+    }
+    return ret;
+  };
+  auto right_shift = [&](int x) {
+    x = x >> 1 | ((1 << (n - 1)) * (x & 1));
+    return x; 
+  };
+  while (t--) {
+    string a, b;
+    cin >> a >> b;
+    int lights = to_bin(a);
+    int switches = to_bin(b); 
+    for (int ans = 0; ans < n * 3; ++ans) {
+      if (dp[ans][lights]) {
+        cout << ans << '\n'; 
+        break; 
+      }
+      lights = lights ^ switches;
+      switches = right_shift(switches); 
+    }
+  }
+  return 0;
+}
