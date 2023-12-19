@@ -1,0 +1,116 @@
+#include "bits/stdc++.h"
+using namespace std;
+
+#ifdef Nero
+#include "Deb.h"
+#else
+#define deb(...)
+#endif
+
+
+const int N = 1003;
+
+int dx[] = {1, -1, 0, 0};
+int dy[] = {0, 0, 1, -1}; 
+
+char c[N][N]; 
+int center[N][N];
+int closest_rock[N][N];
+int closest_start[N][N];
+
+int main() {
+  ios::sync_with_stdio(false);
+  cin.tie(nullptr);
+  int n, d;
+  cin >> n >> d;
+  for (int i = 0; i < n; ++i) {
+    for (int j = 0; j < n; ++j) {
+      cin >> c[i][j];
+      center[i][j] = -1; 
+      closest_rock[i][j] = -1; 
+      closest_start[i][j] = -1; 
+    }
+  }
+  queue<pair<int, int>> que; 
+  for (int i = 0; i < n; ++i) {
+    for (int j = 0; j < n; ++j) {
+      if (c[i][j] == '#') {
+        closest_rock[i][j] = 0;
+        que.emplace(i, j); 
+      }
+    }
+  }
+  while (!que.empty()) {
+    auto [x, y] = que.front();
+    que.pop();
+    for (int i = 0; i < 4; ++i) {
+      int nx = x + dx[i];
+      int ny = y + dy[i];
+      if (nx < 0 || ny < 0 || nx >= n || ny >= n || closest_rock[nx][ny] != -1) {
+        continue; 
+      }
+      closest_rock[nx][ny] = closest_rock[x][y] + 1; 
+      que.emplace(nx, ny); 
+    }
+  }
+  for (int i = 0; i < n; ++i) {
+    for (int j = 0; j < n; ++j) {
+      if (c[i][j] == 'S') {
+        center[i][j] = 0;
+        que.emplace(i, j); 
+        closest_start[i][j] = 0; 
+      }
+    }
+  }
+  int max_d = 0; 
+  while (!que.empty()) {
+    auto [x, y] = que.front();
+    int cd = closest_start[x][y] / d; 
+    que.pop();
+    if (cd >= closest_rock[x][y]) {
+      continue; 
+    }
+    center[x][y] = cd; 
+    max_d = cd; 
+    for (int i = 0; i < 4; ++i) {
+      int nx = x + dx[i];
+      int ny = y + dy[i];
+      if (nx < 0 || ny < 0 || nx >= n || ny >= n || c[nx][ny] == '#' || closest_start[nx][ny] != -1) {
+        continue; 
+      }
+      if (closest_rock[nx][ny] <= cd) continue; 
+      closest_start[nx][ny] = closest_start[x][y] + 1; 
+      center[nx][ny] = cd; 
+      que.emplace(nx, ny); 
+    }
+  }
+  vector<vector<pair<int, int>>> with_d(max_d + 1); 
+  for (int i = 0; i < n; ++i) {
+    for (int j = 0; j < n; ++j) {
+      if (center[i][j] != -1) {
+        with_d[center[i][j]].emplace_back(i, j);
+      }
+    }
+  }
+  for (int i = max_d; i > 0; --i) {
+    for (auto [x, y] : with_d[i]) {
+      for (int j = 0; j < 4; ++j) {
+        int nx = x + dx[j];
+        int ny = y + dy[j];
+        if (nx < 0 || ny < 0 || nx >= n || ny >= n || c[nx][ny] == '#' || center[nx][ny] != -1) {
+          continue; 
+        }
+        center[nx][ny] = i - 1;
+        with_d[center[nx][ny]].emplace_back(nx, ny); 
+      }
+    }
+  }
+  int ans = 0; 
+  for (int i = 0; i < n; ++i) {
+    for (int j = 0; j < n; ++j) {
+      if (center[i][j] >= 0) ans++; 
+    }
+  }
+  cout << ans << '\n'; 
+  return 0;
+}
