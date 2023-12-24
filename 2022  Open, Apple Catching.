@@ -1,0 +1,56 @@
+#include "bits/stdc++.h"
+using namespace std;
+
+#ifdef Nero
+#include "Deb.h"
+#else
+#define deb(...)
+#endif
+
+struct event {
+  int q, t, x, n;
+  bool operator < (const event& other) {
+    return (t == other.t ? q < other.q : t < other.t); 
+  }
+}; 
+
+int main() {
+  ios::sync_with_stdio(false);
+  cin.tie(nullptr);
+  int N;
+  cin >> N;
+  vector<event> a(N);
+  for (int i = 0; i < N; ++i) {
+    int q, t, x, n;
+    cin >> q >> t >> x >> n;
+    int xx = x + t, tt = t - x;
+    a[i] = {q, tt, xx, n}; 
+  }
+  sort(a.begin(), a.end()); 
+  int ans = 0;
+  multiset<pair<int, int>> se; 
+  for (int i = 0; i < N; ++i) {
+    auto [q, t, x, n] = a[i];
+    if (q == 1) {//cow
+      se.emplace(x, n); 
+    } else {//apple
+      pair<int, int> key = make_pair(x, INT_MAX);
+      while (n && !se.empty()) {
+        auto it = se.lower_bound(key);
+        if (it == se.begin()) break;
+        it = prev(it);
+        auto [cx, cntx] = *it;
+        se.erase(it);
+        int take = min(n, cntx);
+        n -= take;
+        cntx -= take;
+        ans += take;
+        if (cntx) {
+          se.emplace(cx, cntx); 
+        }
+      }
+    }
+  }
+  cout << ans << '\n'; 
+  return 0;
+}
