@@ -1,0 +1,100 @@
+#include "bits/stdc++.h"
+using namespace std;
+
+#ifdef Nero
+#include "Deb.h"
+#else
+#define deb(...)
+#endif
+
+const int N = 1003;
+const int md = (int) 1e9 + 7; 
+
+char c[N][N];
+int p[N * N];
+int sz[N * N];
+int num[N][N];
+int ways[N * N];
+vector<int> in_dep[N];
+
+int get(int v) {
+  return p[v] = (p[v] == v ? v : get(p[v])); 
+}
+
+void unite(int v, int u) {
+  u = get(u); v = get(v);
+  if (u == v) return;
+  p[u] = v;
+  sz[v] += sz[u];
+}
+
+int main() {
+  ios::sync_with_stdio(false);
+  cin.tie(nullptr);
+  freopen("cave.in", "r", stdin);
+  freopen("cave.out", "w", stdout);
+  int n, m;
+  cin >> n >> m;
+  for (int i = 0; i < n; ++i) {
+    for (int j = 0; j < m; ++j) {
+      cin >> c[i][j];
+      num[i][j] = i * m + j;
+    }
+  }
+  int ans = 1, mul = 1; 
+  for (int i = n - 2; i > 0; --i) {
+    for (int j = m - 2; j > 0; --j) {
+      if (c[i][j] == '#') continue; 
+      int id = num[i][j];
+      p[id] = id;
+      sz[id] = 1; 
+      ways[id] = 2; 
+      if (c[i][j + 1] == '.') {
+        unite(id, num[i][j + 1]);
+      }
+      if (c[i + 1][j] == '.') {
+        unite(id, num[i + 1][j]);
+      }
+    }
+    set<int> se;
+    for (int j = 1; j < m - 1; ++j) {
+      if (c[i][j] == '.') {
+        int pv = get(num[i][j]);
+        if (!se.count(pv)) {
+          se.insert(pv);
+          ways[pv] = 1; 
+          in_dep[i].push_back(pv); 
+        }
+      }
+    }
+    for (int j : in_dep[i + 1]) {
+      int np = get(j);
+      if (np == j) {
+        mul = (long long) mul * ways[j] % md;
+      } else {
+        ways[np] = (long long) ways[np] * ways[j] % md;        
+      }
+    }
+    for (int j : in_dep[i]) {
+      ways[j]++;
+      if (ways[j] >= md) ways[j] -= md; 
+    }
+    int t = (int) in_dep[i].size();
+    vector<int> pref(t + 1), suf(t + 1);
+    pref[0] = suf[t] = 1;
+    for (int j = 1; j < t; ++j) {
+      pref[j] = (long long) pref[j - 1] * (ways[in_dep[i][j - 1]] - 1) % md;
+    }
+    for (int j = t - 1; j >= 0; --j) {
+      suf[j] = (long long) suf[j + 1] * ways[in_dep[i][j]] % md;
+    }
+    for (int j = 0; j < t; ++j) {
+      int addition = (long long) pref[j] * suf[j + 1] % md;
+      addition = (long long) addition * mul % md;
+      ans += addition;
+      if (ans >= md) ans -= md; 
+    }
+  }
+  cout << ans << '\n'; 
+  return 0;
+}
