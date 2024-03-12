@@ -1,0 +1,138 @@
+#include "bits/stdc++.h"
+using namespace std;
+
+#ifdef Nero
+#include "Deb.h"
+#else
+#define debug(...)
+#endif
+
+const int N = 303;
+const int Q = 5e4 + 5;
+const int md = (int) 1e9 + 7;
+
+int n;
+int arr[N];
+int ans[Q]; 
+long long a, b;
+int dp[N][20][20][3];
+vector<pair<int, int>> qs[N];
+int iv[N], f1[N], f2[N], p2[N]; 
+
+void add(int& x, int y) {
+  x += y;
+  x %= md;
+  if (x >= md) x -= md; 
+}
+
+void sub(int& x, int y) {
+  x -= y;
+  x %= md; 
+  if (x < 0) x += md; 
+}
+
+int mul(int x, int y) {
+  return (int) ((long long) x * y % md);
+}
+
+inline int C(int x, int k) {
+  return mul(f1[x], mul(f2[k], f2[x - k]));
+}
+
+void bldmd() {
+  iv[1] = 1;
+  for (int i = 2; i < N; i++) {
+    iv[i] = md - mul(md / i, iv[md % i]);
+  }
+  f1[0] = f2[0] = p2[0] = 1;
+  for (int i = 1; i < N; i++) {
+    f1[i] = mul(f1[i - 1], i);
+    f2[i] = mul(f2[i - 1], iv[i]);
+    p2[i] = (p2[i - 1] << 1);
+    if (p2[i] >= md) p2[i] -= md;
+  }
+}
+
+int get(int x, int y) {
+  return (x < y ? 0 : x == y ? 1 : 2);
+}
+
+int runDp(int l, long long num) {
+  vector<int> s; 
+  while (num) {
+    s.push_back(num % 10);
+    num /= 10; 
+  }
+  int m = (int) s.size(); 
+  reverse(s.begin(), s.end()); 
+  memset(dp, 0, sizeof dp);
+  for (int i = l; i < n; ++i) {
+    for (int j = 0; j < m; ++j) {
+      int f = get(arr[i], s[j]);
+      dp[i][j][j][f] = 2; 
+    }
+  }
+  for (int i = l + 1; i < n; ++i) {
+    for (int j = 0; j < m; ++j) {
+      for (int k = j; k < m; ++k) {
+        for (int f = 0; f < 3; ++f) {
+          add(dp[i][j][k][f], dp[i - 1][j][k][f]); 
+          if (j > 0) {
+            int nf = get(arr[i], s[j - 1]);
+            nf = nf == 1 ? f : nf;
+            add(dp[i][j - 1][k][nf], dp[i - 1][j][k][f]);             
+          }
+          if (k + 1 < m) {
+            int nf = (f == 1 ? get(arr[i], s[k + 1]) : f);
+            add(dp[i][j][k + 1][nf], dp[i - 1][j][k][f]);
+          }
+        }
+      }
+    }
+  }
+  return m; 
+} 
+
+void solve(int l) {
+  int sb = runDp(l, b); 
+  for (auto [r, i] : qs[l]) {
+    add(ans[i], dp[r][0][sb - 1][0]);
+    add(ans[i], dp[r][0][sb - 1][1]);
+    for (int j = 1; j < sb; ++j) {
+      add(ans[i], mul(C(r - l + 1, j), p2[j]));      
+    }
+  }
+  int sa = runDp(l, a - 1); 
+  for (auto [r, i] : qs[l]) {
+    sub(ans[i], dp[r][0][sa - 1][0]);
+    sub(ans[i], dp[r][0][sa - 1][1]);
+    for (int j = 1; j < sa; ++j) {
+      sub(ans[i], mul(C(r - l + 1, j), p2[j]));      
+    }
+  }
+}
+
+int main() {
+  ios::sync_with_stdio(false);
+  cin.tie(nullptr);
+  bldmd();
+  cin >> n >> a >> b;
+  for (int i = 0; i < n; ++i) {
+    cin >> arr[i];
+  }
+  int q;
+  cin >> q;
+  for (int i = 0; i < q; ++i) {
+    int l, r;
+    cin >> l >> r;
+    --l, --r;
+    qs[l].emplace_back(r, i);
+  }
+  for (int i = 0; i < n; ++i) {
+    solve(i);
+  }
+  for (int i = 0; i < q; ++i) {
+    cout << ans[i] << '\n';
+  }
+  return 0;
+}
