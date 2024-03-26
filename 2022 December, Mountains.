@@ -1,0 +1,98 @@
+#include "bits/stdc++.h"
+using namespace std;
+
+#ifdef Nero
+#include "Deb.h"
+#else
+#define debug(...)
+#endif
+
+const int N = 2002;
+
+int n;
+int a[N];
+set<int> se[N]; 
+
+bool cmp(int i, int j, int k) {
+  return (long long) (j - i) * (a[k] - a[i]) <= (long long) (k - i) * (a[j] - a[i]);
+}
+
+void calc() {
+  for (int i = 1; i < n; ++i) {
+    int k = i + 1; 
+    se[i].insert(i + 1); 
+    for (int j = i + 2; j <= n; ++j) {
+      bool ok = cmp(i, j, k);
+      if (ok) {
+        k = j;
+        se[i].insert(j);
+      }
+    }
+  }
+}
+
+void recalc(int ind) {
+  for (int i = ind; i <= ind; ++i) {
+    se[i].clear();
+    int k = i + 1;
+    if (i < n) {
+      se[i].insert(i + 1);    
+    }
+    for (int j = i + 2; j <= n; ++j) {
+      bool ok = cmp(i, j, k);
+      if (ok) {
+        k = j;
+        se[i].insert(j);
+      }
+    }
+  }
+  for (int i = 1; i < ind - 1; ++i) {
+    int j = ind; 
+    int k = *prev(se[i].lower_bound(j));
+    if (cmp(i, j, k)) {
+      se[i].insert(j);
+    }
+  }
+  for (int i = 1; i < ind; ++i) {
+    if (!se[i].count(ind)) continue; 
+    int k = ind; 
+    while (true) {
+      auto it = se[i].upper_bound(ind);
+      if (it == se[i].end()) break;
+      int j = *it; 
+      if (!cmp(i, j, k)) {
+        se[i].erase(it); 
+      } else {
+        break; 
+      }
+    }
+  }
+}
+
+int getAns() {
+  int ret = 0;
+  for (int i = 1; i <= n; ++i) {
+    ret += se[i].size(); 
+  }
+  return ret;
+}
+
+int main() {
+  ios::sync_with_stdio(false);
+  cin.tie(nullptr);
+  cin >> n;
+  for (int i = 1; i <= n; ++i) {
+    cin >> a[i];
+  }
+  calc(); 
+  int q;
+  cin >> q;
+  while (q--) {
+    int x, y;
+    cin >> x >> y;
+    a[x] += y;
+    recalc(x);
+    cout << getAns() << '\n';
+  }
+  return 0;
+}
